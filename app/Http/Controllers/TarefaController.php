@@ -56,4 +56,24 @@ class TarefaController extends Controller
         return response()->json($tarefaCreated, 201);
     }
 
+    public function destroy($id)
+    {
+        $tarefa = Tarefa::find($id);
+
+        if (!$tarefa) {
+            return response()->json([
+                "error" => "A tarefa em questão não existe"
+            ], 404);
+        }
+
+        $ordemTarefa = $tarefa->ordem;
+        $tarefa->delete();
+
+        Tarefa::where("ordem", ">", $ordemTarefa)->decrement("ordem");
+
+        return response()->json([
+            "message" => "Tarefa deletada e ordens atualizadas com sucesso"
+        ], 200);
+    }
+
 }

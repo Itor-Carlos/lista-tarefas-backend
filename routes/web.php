@@ -21,3 +21,4 @@ Route::get('/', function () {
 
 Route::get('/tarefas', [TarefaController::class, 'index'])->name('tarefas.index');
 Route::post('/tarefas', [TarefaController::class, 'store'])->name('tarefas.store');
+Route::delete('/tarefas/{id}', [TarefaController::class, 'destroy'])->name('tarefas.delete');
