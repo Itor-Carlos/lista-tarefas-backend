@@ -56,4 +56,58 @@ class TarefaController extends Controller
         return response()->json($tarefaCreated, 201);
     }
 
+    public function destroy($id)
+    {
+        $tarefa = Tarefa::find($id);
+
+        if (!$tarefa) {
+            return response()->json([
+                "error" => "A tarefa em questão não existe"
+            ], 404);
+        }
+
+        $ordemTarefa = $tarefa->ordem;
+        $tarefa->delete();
+
+        Tarefa::where("ordem", ">", $ordemTarefa)->decrement("ordem");
+
+        return response()->json([
+            "message" => "Tarefa deletada e ordens atualizadas com sucesso"
+        ], 200);
+    }
+
+    public function update(Request $request, $id){
+        $tarefa = Tarefa::find($id);
+
+        if (!$tarefa) {
+            return response()->json(["error" => "A tarefa em questão não existe"], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            "nome" => "string|unique:tarefas,nome," . $id,
+            "custo" => "numeric",
+            "data_limite" => "date"
+        ], [
+            "nome.string" => "O campo nome deve ser uma string",
+            "nome.unique" => "Já existe uma tarefa com esse nome",
+            "custo.numeric" => "O campo custo deve ser um número",
+            "data_limite.date" => "O campo data_limite deve ser uma data"
+        ]);
+
+        if ($validator->fails()) {
+            $erros = $validator->errors();
+            $errosFormatados = [];
+
+            foreach ($erros->toArray() as $campo => $mensagens) {
+                $errosFormatados[$campo] = implode(', ', $mensagens);
+            }
+            return response()->json($errosFormatados,400);
+        }
+
+        $tarefa->update($request->only('nome', 'custo', 'data_limite'));
+        return response()->json([
+            "message" => "Tarefa alterada com sucesso!"
+        ],200);
+    }
+
 }
