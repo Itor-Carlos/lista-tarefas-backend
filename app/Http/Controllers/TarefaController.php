@@ -110,4 +110,11 @@ class TarefaController extends Controller
         ],200);
     }
 
+    public function getById($id){
+        $tarefa = Tarefa::find($id);
+
+        if(!$tarefa) return response()->json(["error" => `A tarefa de ID ${id} não está cadastrada`]);
+        return response()->json($tarefa);
+    }
+
 }
