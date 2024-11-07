@@ -105,9 +105,7 @@ class TarefaController extends Controller
         }
 
         $tarefa->update($request->only('nome', 'custo', 'data_limite'));
-        return response()->json([
-            "message" => "Tarefa alterada com sucesso!"
-        ],200);
+        return response()->json($tarefa,200);
     }
 
     public function getById($id){
@@ -117,4 +115,20 @@ class TarefaController extends Controller
         return response()->json($tarefa);
     }
 
+    public function updateOrder(Request $request)
+    {
+        $tarefas = $request->input('tarefas');
+
+        DB::transaction(function () use ($tarefas) {
+            foreach ($tarefas as $index => $id) {
+                Tarefa::where('id', $id)->update(['ordem' => 1000 + $index]);
+            }
+
+            foreach ($tarefas as $index => $id) {
+                Tarefa::where('id', $id)->update(['ordem' => $index + 1]);
+            }
+        });
+
+        return response()->json(['message' => 'Ordem das tarefas atualizada com sucesso'], 200);
+    }
 }
